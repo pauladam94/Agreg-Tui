@@ -1,0 +1,411 @@
+---
+Expliquer le fonctionnent de algo de Floyd
+pour la detection de cycle pour une suite récurrente.
+Donner la complexite.
+
+- Detection cycle suite récurrente (+ calcul rang + période)
+- Lièvre avance 2 étapes dans la suite, Tortue avance d'une étape
+- O(1) space - 0(lamda + p) temps
+---
+Donner la meilleur complexité algorithme de tri.
+Donner une intuition de la preuve de ce résultat.
+Donner 2 exemples qui atteignent cette complexité.
+
+0(n * ln(n)) avec n la taille de la liste
+Intuition preuve : connait pas ?? todo
+- tri par insertion
+- tri fusion
+- tri par tas
+- tri par
+- etc..
+---
+Structures (sign / mantisse / exposant) flottants 32 bits ?
+Valeurs spéciales flottants 32 bits ?
+
+1 bits sign | 8 bits exposant | 23 bits mantisse
+- exposant = 255, mantisse != 0 : NAN
+- exposant = 255, mantisse == 0 : (-1)^sign * inf
+- exposant = 0, mantisse = 0    : 0
+---
+Valeurs maximals et minimals entiers signés 32 bits ?
+Valeurs maximals entier non signés 32 bits ?
+Valeurs maximals et minimals flottants 32 bit ?
+
+- int          in [|-2^31, 2^31 - 1|]
+- unsigned int in [|0, 2^32 - 1|]
+- float        in [|-2^127 * (2 - 2^23), 2^127 * (2 - 2^23)|]
+---
+Resultat de ce program en C
+int a = 2345;
+float b = a;
+printf("%f", b);
+
+b est converti de façon sophistiqué en float.
+b vaut donc 2345.0 et c'est ça qui est affiché.
+Pour convertir bit à bit, 
+il faut convertir un (int*) vers un (float*).
+En faisant: `float b = *(int *)&a;` ou utiliser une union.
+---
+Nom (FR et EN) donnée aux données stockées lors d'un appel de fonction ?
+Où stocke t'ont ces données ?
+Donner tous les choses stockées potentiellement pendant cet appel.
+
+On stocke le tableau d'activation (stack frame en anglais) sur la pile (stack).
+La stack frame contient:
+- variables locales
+- paramètres de la fonctions
+- addresse de retour
+- valeurs des registres (uniquement les callee)
+---
+Voici 2 fichiers C.
+Comment les compiler avec un Makefile ?
+Quelles options sont interessantes à ajouter au makefile ?
+// test.c
+#include "f8.h"
+int main() { f8 a = 0; f8 b = 0; f8 c = add(a, b); }
+// f8.h
+typedef f8;
+f8 add(v1 f8, v2 f8);
+// f8.c
+#include "f8.h"
+f8 add(v1 f8, v2 f8) { ... }
+
+// Makefile
+.PHONY=clean exec
+CC = gcc
+CFLAGS = -Wall -Wextra -Wpedantic -fshort-enums -g
+exec: test
+	./test
+test: test.c f8.o
+	$(CC) $(CFLAGS) test.c f8.o -o test.o
+f8.o: f8.c
+	$(CC) $(CFLAGS) -c f8.c
+clean:
+	@rm -f test
+	@rm -f *.o
+---
+Ecrire le nombre 0xB4EFA8 en Big Endian et Little Endian.
+Donner la définition de petit et grand boutisme.
+Expliquer les avantages et inconvénients de chacun.
+
+====== addresse croissante =====>
+Big Endian: B4 EF A8 // addresse croissante, octet croissant en importance 
+Little Endian: A8 EF B4
+- Little endian est plus facile à implémenter car 
+    "logique en terme d'ordre des octets"
+- Big endian est la manière classique d'afficher les nombres pour les humains.
+--- HP
+Comment calculer le premier entier positif (ou nul)
+non présent dans une liste d'entiers ?
+Donner la meilleur complexité.
+
+Avec n la taille de la liste en entrée.
+Il n'y a pas d'algo purement récursif qui résolve ce problème
+de façon efficace.
+La meilleure manière est de créer un tableau de taille n.
+A chaque fois qu'on voit un nombre on écrit "true" à la case n.
+On renvoie l'indice du premier élément qui est "false" dans le tableau.
+O(n) espace
+0(n) temps
+---
+On definit les expressions régulières de cette façon:
+e = | a in Sigma (ensemble des lettres)
+    | e . e
+    | e + e
+    |    e*
+Est ce que le théorième de Kleen est vérifié pour ces expressions régulières ?
+
+Non car ces expressions régulières de décrivent pas le language vide
+ou le language ne contenant que le mot vide.
+---
+Enoncer le théorème de Kleene.
+
+Soit Sigma l'alphabet que l'on étudie.
+Reg(Sigma*) = Rec(Sigma*)
+L'ensemble des languages réguliers est égal à
+l'ensemble des languages reconnaissables sur Sigma*
+---
+Enoncer le Lemme d'Arden.
+
+Soit A, B des expressions régulières.
+On cherche X une expression régulières vérifiant:
+X = AX + B
+La solution est X = A*.B si epsilon n'est pas dans A.
+---
+Un fichier test_tri.ml dépend de tri.ml 
+dont l'interface est défini dans tri.mli
+Comment compiler et runner ce code Ocaml ?
+
+.PHONY: 
+exec: tri_test.x
+    ./tri_test.x
+
+tri_test.x: tri.cmx tri_test.cmx
+    ocamlopt -o tri_test.x tri.cmx tri_test.cmx
+
+tri.cmx: tri.cmi tri.ml
+    ocamlopt -c tri.ml
+
+tri.cmi: tri.mli
+    ocamlopt -c tri.mli
+
+tri_test.cmx: tri_test.ml tri.cmx
+    ocamlopt -c tri_test.ml
+---
+Comment import un module en Python ?
+
+Pour "tri" le nom du module (ou fichier).
+import tri
+tri.func(a, b)
+...
+---
+Comment import un module en Ocaml ?
+
+tri.ml un fichier dont 
+On ne fait aucune opération particulière mais :
+- il faut un tri.mli (pas obligatoire)
+- il faut appeler les fonctions par "Tri.tri_fusion l"
+---
+Comment définir un set vide en python ?
+
+a = set()
+---
+Comment définir un dictionnaire vide en python ?
+
+a = {}
+---
+Comment ouvrir un fichier en python ?
+
+with open("test.csv", "r") as f:
+    for line in f:
+        line.strip().split(".")
+        ...
+---
+Comment ourvir un fichier en C ?
+
+#include <stdio.h>
+FILE* f = fopen("data.data", "r");
+if (f == NULL) {
+    printf("Erreur lors de l'ouverture de data.data")
+    exit(1);
+}
+...
+---
+Comment ouvrir un fichier en OCaml ?
+
+TODO
+---
+Comment écrire de la couleur en C et python ?
+
+def red() : print("\033[1;31m", end="")
+def green(): print("\033[1;32m", end="")
+def reset(): print("\033[0m", end="")
+---
+Comment écrire de la couleur en Ocaml ?
+
+let red () = print_string "\027[1;31m"
+let green () = print_string "\027[1;32m"
+let reset () = print_string "\027[0m"
+---
+Quel est le plan de leçon tri (celle de Pablo) ?
+
+I. Introduction au tri
+  A. Definitions
+  B. Outils pour l'analyse de comlexité
+II. Algorithmes de tri
+  A. Tri par comparaison
+      - Tri par insertion
+      - Tri par selection
+      - Tri fusion
+      - Tri rapide
+  B. Tri utilisant une structure de données
+      - Tri par tas
+      - Tri par ABR
+  C. Tri linéaires
+      - Tri comptage
+      - Tri par base
+III. Applications des tris
+  A. Algorithme Gloutons
+  B. Parcours intelligents
+IV. Réseaux de tri:
+  - comparateur / résaeu de comparateur
+Références : principalement Cormen (edition 2 - 3)
+---
+Plan Dev "Tri par tas" ?
+
+I. Etude des tas
+    - exemple
+II. Percolation
+    - explication algorithme + schémas une étape et 
+III. Tri par Tas
+    A. Tas Max à partir d'un tableau
+        - percolation sur les case n/2 jusqu'à 1
+    B. Extraction des element dans le tax max
+        - Schemas racine échange avec dernière feuille non trié
+---
+Plan Dev "Tri Rapide" ?
+
+I. L'algorithme
+    - présenter l'algorithme
+II. Terminaison: (à delete)
+    - variant + boucle for termine
+III. Complexité pire cas
+    - objectif relation C(n) = 2 * C(n/2) + O(n) (master thm)
+    - O(n**2) en pire cas
+IV. Complexité moyenne
+    - démo complète (bien la faire)
+V. Exxtensions
+    - choix du pivot par médian à 3
+    - sur les cas de petites tailles on appelle le tri par insertion
+    - appeler d'abord le sous cas le plus petit permet 
+        d'avoir une complexité spatiale en 0(ln(n)) au lieu de O(n)
+---
+Plan Dev "Automate des occurences"
+
+I. Recherche de mot dans un text
+    - definition / approche naïve en O(n**2)
+II. Automates des occurences
+    - définition
+    - exemple
+    - parlé determinisation de l'automate simple
+III. Correction
+    - écriture 
+    - preuve par récurrence sur la longueur du motif qui crée l'automate
+IV. Implementation (Buffer)
+    - Calcul éfficacité
+    - Automate construit de façon incrémental
+Références: Cormen (??) ni tortue ni carton
+---
+Comment calculer les composantes connexes d'un graphe non orienté ?
+
+Un seul parcours en profondeur.
+---
+Comment calculer les composantes fortements connexes d'un
+graphe orienté ?
+
+Algorithme de Kosaraju: 2 parcours en profondeur.
+---
+Plan Dev "Kosaraju - 2 SAT"
+
+I. Composantes fortement connexes
+  I.A Problèmes recherche CFC
+  I.B Applications
+      - résolution 2 SAT
+      - diviser pour régner
+  I.C Approches Naïves
+      - graphe orienté
+      - méthode en O((|S| + |A|) * |S|)
+II. Algorithme de Kosaraju
+  II.A Les 2 parcours en prodondeur
+      - algorithme / exemples / complexité
+  II.B Corection (terminaison)
+      a. 
+      b. 
+      c.
+      d. Aucune arrête du graphe CFC n'est présente dans un arbre qui 
+      
+III. Kosaraju NL-Complet (Buffer)
+  III.A Problème de 2 SAT
+  III.B Classe NL (inclus dans P et égale à coNL)
+  III.C Réduction 2 SAT vers Kosaraju
+---
+Comment se font les conversions entre entier en C ?
+- signés et non signés
+- lors d'overflow ou pas
+
+Taille diminue : on tronque les représentants en mémoire
+- celà est correcte s'il n'y avait pas d'overflow
+La taille pour des entiers non signés -> extension de signe
+---
+En C où se trouve les différentes définitions suivantes dans la mémoire ?
+
+Réponse .data ou .rodata .bss heap stack
+---
+Decrire la stack la heap et tous le reste par un schémas
+Il faut bien indiquer dans quel sens les adresses sont croissantes.
+
+| heap |         ...       | stack |
+0X00 --> adresse croissante --> 0XFF
+---
+Quel est le programme de NSI en première ?
+
+.1/4 du temps est consacré à des projets
+- Histoire de l'informatique
+- Représentation des données 
+    - types et valeurs de bases (binaires, entiers, ASCII)
+    - types construits (dictionnnaire, tableau, p-uplet)
+- Traitement de données en tables
+- Language de Programmation
+    - tests, spec fonctions ...
+- Architectures matérielles et systèmes d’exploitation
+    - Von Neuman
+    - IHM / Notions d'Archi
+    - OS
+- Algorithmique
+    - Parcours séquentiel d’un tableau
+    - Tris par insertion, par sélection
+    - Algorithme des k plus proches voisins
+    - Recherche dichotomique dans tableau trié
+    - Algorithmes gloutons 
+---
+Quel est le programme de NSI en terminale ?
+
+Lire le Programme
+---
+Quels sont les pilliers de la programmation Objet ?
+
+Pilliers POO :
+- Encapsulation
+- Héritage
+- Polymorphisme
+---
+Comment compiler avec Asan en C ?
+
+ajouter -fsanitize=address aux options de gcc.
+---
+Comment compiler en debug en C ?
+
+gcc .. -g ..
+---
+Comment compiler en debug en Ocaml ?
+
+TODO
+---
+Comment debugger un programme C ?
+
+gdb ./binaire.x
+>> start (pour démarrer)
+>> print var.champ (pour print)
+>> step (pour avancer d'une seule étape)
+>> next (pour avancer d'une line)
+---
+Comment debugger un programme Ocaml ?
+
+TODO
+---
+Comment debugger un programme Python ?
+
+TODO
+---
+Qu'est ce qu'un arbre B+ ?
+
+Un arbre B+ est un b-arbre n-aire équilibré.
+---
+Comment compiler avec le header "math.h" en C ?
+Comment en pratique le programme est compilé avec ce header ?
+
+gcc .. -lm ..
+---
+Comment utiliser gnuplot pour faire un graphique ?
+
+gnuplot -p -e "plot 'data.txt' "
+---
+Comment utiliser gnuplot pour faire un fit des données par une fonction ?
+
+TODO
+---
+Voici une fonction qui engendre un stack overflow.
+Comment la changer pour avoir moins souvent cette erreur ?
+
+- ecrire la fonction en tail récursif
+on peut utiliser le "continuation passing style" (cps)
