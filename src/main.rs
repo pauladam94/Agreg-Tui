@@ -37,9 +37,9 @@ fn main() -> io::Result<()> {
             }
         })?;
 
-        let rest_frame_time = Duration::new(1, 0).as_nanos() / frame_rate
-            - frame_time.elapsed().as_nanos();
-        if rest_frame_time > 0 {
+        let elapsed_time = frame_time.elapsed().as_nanos();
+        if Duration::new(1, 0).as_nanos() > elapsed_time {
+            let rest_frame_time = Duration::new(1, 0).as_nanos() > elapsed_time;
             sleep(Duration::new(0, rest_frame_time as u32));
         }
     }

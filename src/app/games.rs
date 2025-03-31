@@ -25,8 +25,6 @@ pub struct Games {
     state: GameState,
 
     snake: Vec<Snake>,
-
-    test: Offset,
 }
 
 impl Games {
@@ -35,8 +33,6 @@ impl Games {
             state: GameState::default(),
 
             snake: vec![Snake::new(), Snake::new(), Snake::new(), Snake::new()],
-
-            test: Offset::default(),
         }
     }
 }
@@ -88,8 +84,8 @@ impl Ui for Games {
                     self.state = GameState::Menu;
                 }
 
-                Zone::new().mouse_followed().ui(
-                    Rect::new(20, 20, 5, 5).offset(Offset::new(
+                Zone::new().bordered().ui(
+                    Rect::new(4, 4, 4, 4).offset(Offset::new(
                         area.left() as i32,
                         area.top() as i32,
                     )),
@@ -98,7 +94,16 @@ impl Ui for Games {
                     mouse,
                 );
 
-                Zone::new().border_type(BorderType::Rounded).ui(
+                Zone::new().bordered().border_type(BorderType::Thick).ui(
+                    Rect::new(6, 6, 3, 3).offset(Offset::new(
+                        area.left() as i32,
+                        area.top() as i32,
+                    )),
+                    buf,
+                    events,
+                    mouse,
+                );
+                Zone::new().bordered().border_type(BorderType::Rounded).ui(
                     Rect::new(10, 10, 5, 5).offset(Offset::new(
                         area.left() as i32,
                         area.top() as i32,
@@ -108,7 +113,7 @@ impl Ui for Games {
                     mouse,
                 );
 
-                Zone::new().border_type(BorderType::Double).ui(
+                Zone::new().bordered().border_type(BorderType::Double).ui(
                     Rect::new(20, 30, 10, 10).offset(Offset::new(
                         area.left() as i32,
                         area.top() as i32,

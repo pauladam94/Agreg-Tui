@@ -1,0 +1,33 @@
+1.Exemples de méthodes et outils pour la correction des programmes
+2.Paradigmes de programmation : impératif, fonctionnel, objet. Exemples et applications
+3.Tests de programme et inspection de code
+4.Principe d’induction
+5.Implémentations et applications des piles, files et files de priorité
+6.Implémentations et applications des ensembles et des dictionnaires
+7.Accessiblité et chemins dans un graphe. Applications.
+8.Algorithmes de tri. Exemples, complexité et applications.
+9.Algorithmique du texte. Exemples et applications.
+10.Arbres : représentations et applications
+11.Exemples d’algorithmes d’approximation et d’algorithmes probabilistes
+12.Exemples d’algorithmes glouton et de retour sur trace. Exemples et Applications
+13.Exemples d’algorithmes utilisant la méthode « diviser pour régner ». Exemples et Applications.
+14.Programmation dynamique. Exemples et Applications.
+15.Exemples d’algorithmes d’apprentissage supervisé et non supervisé. Exemples et Applications.
+16.Exemples d’algorithmes pour l’étude des jeux
+17.Algorithmes d’ordonnancement de tâches et de gestion de ressources
+18.Gestion et coordination de multiples fils d’exécution
+19.Mémoire : du bit à l’abstraction vue par les processus
+20.Problèmes et stratégies de cohérence et de synchronisation
+21.Stockage et manipulation de données, des fichiers aux bases de données
+22.Fonctions et circuits booléens en architecture des ordinateurs
+23.Principes de fonctionnement des ordinateurs : architecture, notions d’assembleur
+24.Échanges de données et routage. Exemples.
+25.Client-serveur : des sockets TCP aux requêtes HTTP
+26.Architecture d’Internet
+27.Modèle relationnel et conception de bases de données
+28.Requêtes en langage SQL
+29.Langages rationnels et automates finis. Exemples et applications
+30.Grammaire Hors Contexte. Application à l'analyse syntaxique.
+31.Classes P et NP. Problèmes NP-complets. Exemples
+32.Décidabilité et indécidabilité. Exemples
+33.Formules du calcul propositionnel : représentation, formes normales, satisfiabilité. Applications

@@ -27,7 +27,6 @@ pub struct Zone<'a> {
 
 fn text_width(s: &str) -> usize {
     s.split('\n')
-        .into_iter()
         .max_by(|x, y| {
             x.graphemes(true).count().cmp(&y.graphemes(true).count())
         })
@@ -88,7 +87,7 @@ impl Ui for Zone<'_> {
                     min_area.width, min_area.height
                 ))
                 .render(Rect::new(10, 10, 100, 1), buf);
-                return Response::NONE;
+                return Response::STOPPED;
             }
         }
 
@@ -169,15 +168,32 @@ impl Ui for Zone<'_> {
                 buf,
             );
 
-        Text::from(self.text).render(
-            Rect::new(
-                (area.left() + area.right() - text_width(self.text) as u16) / 2,
-                (area.top() + area.bottom()) / 2,
-                area.width,
-                area.height / 2,
-            ),
-            buf,
-        );
+        if area.left() + area.right() > text_width(self.text) as u16 {
+            let text_x =
+                (area.left() + area.right() - text_width(self.text) as u16) / 2;
+            Text::from(self.text).render(
+                Rect::new(
+                    text_x,
+                    (area.top() + area.bottom()) / 2,
+                    area.width,
+                    area.height,
+                ),
+                buf,
+            );
+        } else {
+            let mut line = (area.top() + area.bottom()) / 2;
+            let mut col = area.left() + 1;
+            for word in self.text.split(" ") {
+                if col + word.len() as u16 + 1 > area.right() {
+                    col = area.left() + 1;
+                    line += 1;
+                }
+                Text::from(word)
+                    .render(Rect::new(col, line, word.len() as u16, 1), buf);
+                col += word.len() as u16 + 1;
+            }
+        };
+
         rep
     }
 }

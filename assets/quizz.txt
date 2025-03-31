@@ -409,3 +409,8 @@ Comment la changer pour avoir moins souvent cette erreur ?
 
 - ecrire la fonction en tail récursif
 on peut utiliser le "continuation passing style" (cps)
+---
+Soit une fonction de ce type : TODO
+Quel est le type de la même fonction en cps ?
+
+TODO

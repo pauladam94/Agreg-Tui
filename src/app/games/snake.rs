@@ -15,10 +15,10 @@ const BLOCK: [(u16, u16); 4] = [(0, 1), (1, 0), (0, 0), (1, 1)];
 #[derive(Debug, Default, PartialEq)]
 pub enum Direction {
     #[default]
-    RIGHT,
-    DOWN,
-    UP,
-    LEFT,
+    Right,
+    Down,
+    Up,
+    Left,
 }
 
 #[derive(Debug)]
@@ -36,10 +36,10 @@ pub struct Snake {
 
 fn dif_pos(dir: &Direction) -> [i16; 2] {
     match dir {
-        Direction::RIGHT => [1, 0],
-        Direction::LEFT => [-1, 0],
-        Direction::DOWN => [0, 1],
-        Direction::UP => [0, -1],
+        Direction::Right => [1, 0],
+        Direction::Left => [-1, 0],
+        Direction::Down => [0, 1],
+        Direction::Up => [0, -1],
     }
 }
 
@@ -70,17 +70,17 @@ impl Snake {
             fruit: Position::new(10, 10),
             time: Instant::now(),
             delta_time_millis: BASE_SPEED,
-            dir: Direction::RIGHT,
+            dir: Direction::Right,
             hard_fruit: true,
             show_dist: false,
         }
     }
     fn update_delta_time(&mut self) {
         match self.dir {
-            Direction::RIGHT | Direction::LEFT => {
+            Direction::Right | Direction::Left => {
                 self.delta_time_millis = BASE_SPEED;
             }
-            Direction::UP | Direction::DOWN => {
+            Direction::Up | Direction::Down => {
                 self.delta_time_millis = BASE_SPEED * 2;
             }
         }
@@ -186,23 +186,23 @@ impl Snake {
     ) -> Response {
         match key_event.code {
             KeyCode::Left | KeyCode::Char('h') => {
-                if self.dir != Direction::RIGHT {
-                    self.dir = Direction::LEFT
+                if self.dir != Direction::Right {
+                    self.dir = Direction::Left
                 }
             }
             KeyCode::Up | KeyCode::Char('k') => {
-                if self.dir != Direction::DOWN {
-                    self.dir = Direction::UP
+                if self.dir != Direction::Down {
+                    self.dir = Direction::Up
                 }
             }
             KeyCode::Right | KeyCode::Char('l') => {
-                if self.dir != Direction::LEFT {
-                    self.dir = Direction::RIGHT
+                if self.dir != Direction::Left {
+                    self.dir = Direction::Right
                 }
             }
             KeyCode::Down | KeyCode::Char('j') => {
-                if self.dir != Direction::UP {
-                    self.dir = Direction::DOWN
+                if self.dir != Direction::Up {
+                    self.dir = Direction::Down
                 }
             }
             KeyCode::Char('d') => self.show_dist = !self.show_dist,

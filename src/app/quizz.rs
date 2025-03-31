@@ -6,7 +6,7 @@ use rand::random_range;
 use ratatui::layout::{Constraint, Direction, Layout};
 use ratatui::prelude::{Buffer, Position, Rect};
 
-const QUIZZ_TEXT: &'static str = include_str!("../../assets/quizz.txt");
+const QUIZZ_TEXT: &str = include_str!("../../assets/quizz.txt");
 
 #[derive(Debug, Default, PartialEq)]
 enum QuizState {
@@ -47,6 +47,9 @@ impl Quiz {
             QuizState::Answer => {
                 self.state = QuizState::Question;
                 self.question_done.push(self.index);
+                if self.questions.is_empty() {
+                    return;
+                }
                 while self.question_done.contains(&self.index) {
                     self.index = random_range(0..self.questions.len());
                 }
@@ -58,29 +61,30 @@ impl Quiz {
 impl Ui for Quiz {
     fn ui(
         &mut self,
-        area: Rect,
+        mut area: Rect,
         buf: &mut Buffer,
         events: &[Event],
         mouse: Position,
     ) -> Response {
-        let shortcut_area = Layout::default()
+        let layout_shortcut = Layout::default()
+            .direction(Direction::Vertical)
             .constraints([Constraint::Fill(1), Constraint::Length(1)])
-            .split(area)[1];
-        Zone::default().text("| [->] Next |").ui(
-            shortcut_area,
-            buf,
-            events,
-            mouse,
-        );
+            .split(area);
+        area = layout_shortcut[0];
+        let shortcut_area = layout_shortcut[1];
+        Zone::default()
+            .text("-> Next")
+            .ui(shortcut_area, buf, events, mouse);
 
+        if should_stop(events) {
+            return Response::STOPPED;
+        }
         if self.questions.is_empty() {
             for (question, answer) in parse_questions(QUIZZ_TEXT) {
                 self.questions.push((question, answer))
             }
         }
-        if should_stop(events) {
-            return Response::STOPPED;
-        }
+
         for event in events {
             match event {
                 Event::Key(KeyEvent {
@@ -110,7 +114,7 @@ impl Ui for Quiz {
                 Constraint::Fill(1),
             ]);
         let (question_txt, answer_txt) = self.questions[self.index];
-        Zone::default().text(question_txt).ui(
+        Zone::default().bordered().text(question_txt).ui(
             horizontal_layout.split(question_area)[1],
             buf,
             events,
@@ -118,7 +122,7 @@ impl Ui for Quiz {
         );
 
         if self.state == QuizState::Answer {
-            Zone::default().text(answer_txt).ui(
+            Zone::default().bordered().text(answer_txt).ui(
                 horizontal_layout.split(answer_area)[1],
                 buf,
                 events,
@@ -126,13 +130,6 @@ impl Ui for Quiz {
             );
         }
 
-        // if Zone::default()
-        //     .text("First Question")
-        //     .bg(Color::Green)
-        //     .ui(layout, buf, events, mouse)
-        //     .clicked()
-        // {
-        // }
         Response::NONE
     }
 }
