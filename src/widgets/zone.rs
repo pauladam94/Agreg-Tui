@@ -35,6 +35,28 @@ fn text_width(s: &str) -> usize {
         .count()
 }
 
+#[cfg(test)]
+mod test {
+    use super::text_width;
+
+    #[test]
+    fn essai() {
+        assert!(text_width("hey") == 3)
+    }
+
+    #[test]
+    fn essai2() {
+        assert!(
+            text_width(
+                "hey
+hey
+heyyyy
+"
+            ) == 6
+        )
+    }
+}
+
 impl<'a> Zone<'a> {
     pub fn new() -> Self {
         Self {
@@ -168,19 +190,10 @@ impl Ui for Zone<'_> {
                 buf,
             );
 
-        if area.left() + area.right() > text_width(self.text) as u16 {
-            let text_x =
-                (area.left() + area.right() - text_width(self.text) as u16) / 2;
-            Text::from(self.text).render(
-                Rect::new(
-                    text_x,
-                    (area.top() + area.bottom()) / 2,
-                    area.width,
-                    area.height,
-                ),
-                buf,
-            );
-        } else {
+        if area.left() + area.right() < text_width(self.text) as u16
+            || area.right() - area.left() < text_width(self.text) as u16 + 2
+        {
+
             let mut line = (area.top() + area.bottom()) / 2;
             let mut col = area.left() + 1;
             for word in self.text.split(" ") {
@@ -192,6 +205,18 @@ impl Ui for Zone<'_> {
                     .render(Rect::new(col, line, word.len() as u16, 1), buf);
                 col += word.len() as u16 + 1;
             }
+        } else {
+            let text_x =
+                (area.left() + area.right() - text_width(self.text) as u16) / 2;
+            Text::from(self.text).render(
+                Rect::new(
+                    text_x,
+                    (area.top() + area.bottom()) / 2,
+                    area.width,
+                    area.height,
+                ),
+                buf,
+            );
         };
 
         rep

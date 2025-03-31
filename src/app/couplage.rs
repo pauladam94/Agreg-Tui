@@ -89,7 +89,7 @@ impl Ui for Couplage {
         let vert = Layout::default()
             .direction(Direction::Vertical)
             .constraints([
-                Constraint::Fill(1),
+                Constraint::Length(1),
                 Constraint::Fill(2),
                 Constraint::Fill(8),
             ])
