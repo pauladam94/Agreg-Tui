@@ -2,6 +2,7 @@ use crate::ui::{Response, Ui};
 use crate::widgets::zone::Zone;
 use crossterm::event::*;
 use ratatui::prelude::*;
+use ratatui::symbols::merge::MergeStyle;
 use ratatui::widgets::*;
 
 use self::block::Block;
@@ -157,6 +158,7 @@ impl Ui for Hirschberg {
         let yj = 2 * (self.j as u16 + area.top()) - 1;
         Block::bordered()
             .border_type(BorderType::Double)
+            .merge_style(Some(MergeStyle::BestFit))
             .render(Rect::new(xi, yj, 3, 3), buf);
 
         Response::NONE

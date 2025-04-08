@@ -1,0 +1,33 @@
+1-Mini Asan-A*
+2-None-None
+3-Mini Asan-
+4-
+5-Union Find-
+6-ABR Optimaux
+7-Approx Set Cover-A*
+8-Tri par Tas-Tri Fus MultiThread
+9-Hirshberg-
+10-ABR Optimaux-Hash Concing
+11-Approx Set Cover
+12-
+13-
+14-CYK-
+15-K d tree-
+16-Sudoku-
+17-Ordo Disque-
+18-Tri Fus Multithread-
+19-
+20-
+21-
+22-
+23-Add Opti-Appel Fonction
+24-Page Web-Protocole TCP
+25-Page Web-Protocole TCP
+26-Page Web-Protocole TCP
+27-Algo Jointure-Opti Requête
+28-Algo Jointure-Opti Requête
+29-CYK-Automate Occurence
+30-CYK-
+31-TSP-Sudoku
+32-Thm Rice-PCP Indécidable
+33-Add Opti-Sudoku

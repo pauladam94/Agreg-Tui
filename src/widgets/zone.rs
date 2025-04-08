@@ -6,6 +6,8 @@ use ratatui::prelude::*;
 use ratatui::widgets::*;
 use unicode_segmentation::UnicodeSegmentation;
 
+use self::symbols::merge::MergeStyle;
+
 #[derive(Default)]
 pub struct Zone<'a> {
     dragable: bool,
@@ -23,6 +25,8 @@ pub struct Zone<'a> {
     mouse_follow: bool,
 
     bg: Option<Color>,
+
+    merge_style: Option<MergeStyle>,
 }
 
 fn text_width(s: &str) -> usize {
@@ -70,6 +74,10 @@ impl<'a> Zone<'a> {
     }
     pub fn bordered(mut self) -> Self {
         self.bordered = true;
+        self
+    }
+    pub fn merge_style(mut self, merge_style: Option<MergeStyle>) -> Self {
+        self.merge_style = merge_style;
         self
     }
     pub fn mouse_followed(mut self) -> Self {
@@ -171,15 +179,21 @@ impl Ui for Zone<'_> {
             Block::default()
         };
 
-        block
-            .border_style(if rep.clicked() {
-                Style::new().green()
-            } else if rep.hovered() {
-                Style::new().fg(Color::Rgb(255, 128, 0))
-            } else {
-                Style::new()
-            })
-            .border_type(self.border_type)
+        Paragraph::new(self.text)
+            .centered()
+            .wrap(Wrap { trim: true })
+            .block(
+                block
+                    .merge_style(self.merge_style.clone())
+                    .border_style(if rep.clicked() {
+                        Style::new().green()
+                    } else if rep.hovered() {
+                        Style::new().fg(Color::Rgb(255, 128, 0))
+                    } else {
+                        Style::new()
+                    })
+                    .border_type(self.border_type),
+            )
             .render(
                 Rect::new(
                     (area.x as i32 + offset.x) as u16,
@@ -189,35 +203,35 @@ impl Ui for Zone<'_> {
                 ),
                 buf,
             );
-
-        if area.left() + area.right() < text_width(self.text) as u16
-            || area.right() - area.left() < text_width(self.text) as u16 + 2
-        {
-
-            let mut line = (area.top() + area.bottom()) / 2;
-            let mut col = area.left() + 1;
-            for word in self.text.split(" ") {
-                if col + word.len() as u16 + 1 > area.right() {
-                    col = area.left() + 1;
-                    line += 1;
-                }
-                Text::from(word)
-                    .render(Rect::new(col, line, word.len() as u16, 1), buf);
-                col += word.len() as u16 + 1;
-            }
-        } else {
-            let text_x =
-                (area.left() + area.right() - text_width(self.text) as u16) / 2;
-            Text::from(self.text).render(
-                Rect::new(
-                    text_x,
-                    (area.top() + area.bottom()) / 2,
-                    area.width,
-                    area.height,
-                ),
-                buf,
-            );
-        };
+        /*
+                if area.left() + area.right() < text_width(self.text) as u16
+                    || area.right() - area.left() < text_width(self.text) as u16 + 2
+                {
+                    let mut line = (area.top() + area.bottom()) / 2;
+                    let mut col = area.left() + 1;
+                    for word in self.text.split(" ") {
+                        if col + word.len() as u16 + 1 > area.right() {
+                            col = area.left() + 1;
+                            line += 1;
+                        }
+                        Text::from(word)
+                            .render(Rect::new(col, line, word.len() as u16, 1), buf);
+                        col += word.len() as u16 + 1;
+                    }
+                } else {
+                    let text_x =
+                        (area.left() + area.right() - text_width(self.text) as u16) / 2;
+                    Text::from(self.text).render(
+                        Rect::new(
+                            text_x,
+                            (area.top() + area.bottom()) / 2,
+                            area.width,
+                            area.height,
+                        ),
+                        buf,
+                    );
+                };
+        */
 
         rep
     }

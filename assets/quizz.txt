@@ -367,6 +367,10 @@ Comment compiler en debug en C ?
 
 gcc .. -g ..
 ---
+Comment compiler avec tous les warnings en Ocaml ?
+
+ocamlc -w +A main.x main.ml
+---
 Comment compiler en debug en Ocaml ?
 
 TODO
@@ -385,20 +389,30 @@ TODO
 ---
 Comment debugger un programme Python ?
 
-TODO
+> python3 -m pdb main.py
+En utilisant "step" et "next"
+pour avancer dans le programme.
 ---
 Qu'est ce qu'un arbre B+ ?
+Ou sont-ils utilisés en pratique ?
 
 Un arbre B+ est un b-arbre n-aire équilibré.
+Cette structure est très utilisé pour stocker des bases de données.
 ---
 Comment compiler avec le header "math.h" en C ?
 Comment en pratique le programme est compilé avec ce header ?
 
-gcc .. -lm ..
+> gcc .. -lm ..
+La librairie implémentant "math.h" est compilé statiquement
+sur linux. Il est ensuite linké dynamiquement au binaire.
 ---
 Comment utiliser gnuplot pour faire un graphique ?
 
-gnuplot -p -e "plot 'data.txt' "
+Data :
+12 234
+... ...
+123 2334
+gnuplot -p -e "plot 'data.txt' using 1:2 with lines title 'Algorithme Naif'"
 ---
 Comment utiliser gnuplot pour faire un fit des données par une fonction ?
 
@@ -410,7 +424,81 @@ Comment la changer pour avoir moins souvent cette erreur ?
 - ecrire la fonction en tail récursif
 on peut utiliser le "continuation passing style" (cps)
 ---
-Soit une fonction de ce type : TODO
+Soit la fonction de tri d'une liste :
+val tri : int list -> (int -> int -> bool) -> int
 Quel est le type de la même fonction en cps ?
 
 TODO
+---
+Est ce que A* est un algorithme glouton ?
+
+Oui, à chaque instant on étudie le noeud premier dans
+la file de priorité utilisé.
+---
+Citez des algorithmes de compression de texte par dictionnaire.
+
+Lempel Ziv.
+Pas Huffman.
+---
+Donner une application de l'algorithme de Huffman.
+
+Utiliser dans l'algorithme
+---
+Donne une application de la coloration de graphe.
+
+Allocation de registre en compilation.
+Le nombre de registre est limité, il faut en utiliser
+le moins possible et en fonction des zones de code
+il faut pas utilisé les mêmes registres au même endroit.
+---
+En pratique combien de variables les SAT solveurs ?
+Donner une application des SAT solveurs.
+
+Les SAT solveurs sont utilisés dans l'industrie notamment
+---
+Qu'est ce que le problème lecteur-redacteur ?
+Ecrire une solution de ce problème en utilisant
+des primitives de synchronisation.
+
+          init = mutex(0)
+|=====LECTEUR=====|=====REDACTEUR=====|
+|                 |                   |
+|                 |                   |
+|                 |                   |
+|                 |                   |
+|                 |                   |
+|=================|===================|
+---
+Comment faire une animation avec dot et ffmpeg ?
+
+ffmpeg image%d.png
+---
+Citer tous les algorithmes du textes au programmes.
+
+- Lempel Ziv
+- Huffman
+- Knuth Morris Pratt
+.... TODO
+---
+Décrire les différences entre l'algorithme de routage
+RIP et OSPF.
+Dans quelle situation sont t'ils utilisés ?
+
+TODO
+---
+Comment récupérer les charactères de boites
+sur la clé agreg ?
+
+> sqlite3
+> .mode box
+> create table A(a int);
+> insert into A values(2);
+> select * from A;
+---
+Ecrire les fonctions utilisés pour afficher
+un arbre jolie dans le terminal.
+
+val pp_tree : tree -> String
+(* recursive function *)
+(* tree is_left prefixe -> resultat *)
+val pp_tree_aux : tree -> bool -> String -> String

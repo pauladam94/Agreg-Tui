@@ -1,6 +1,7 @@
 use crossterm::event::{Event, KeyCode, KeyEvent};
 use ratatui::layout::{Constraint, Direction, Layout};
 use ratatui::prelude::{Buffer, Position, Rect};
+use ratatui::text::Text;
 use ratatui::widgets::Widget;
 use ratatui::widgets::{Bar, BarChart};
 
@@ -9,28 +10,272 @@ use crate::ui::{Response, Ui};
 use crate::widgets::zone::Zone;
 use rand::random_range;
 
-const LECONS: &str = include_str!("../../assets/lecons_agreg.txt");
+// Representation of a an Order for elements
+// It must be transitive.
+#[derive(Debug, Default)]
+struct Order {
+    // parent[b] = Some(b) inside edges means a >= b
+    parent: Vec<Option<usize>>,
+    incoherent: bool,
+}
 
-#[derive(Default, Debug)]
+impl Order {
+    fn new() -> Self {
+        let mut parent = vec![];
+        for _ in 0..NB_LECONS + 1 {
+            parent.push(None);
+        }
+        Self {
+            parent,
+            ..Default::default()
+        }
+    }
+    fn childs(&self, parent: usize) -> Vec<usize> {
+        let mut res = vec![];
+        for (i, parent_i) in self.parent.iter().enumerate() {
+            if let Some(p) = parent_i {
+                if *p == parent {
+                    res.push(i)
+                }
+            }
+        }
+        res
+    }
+
+    // Check that lhs >= rhs in the order
+    // Since we have a partial order.
+    // This function returns :
+    // - None when no order exists.
+    // - Some(true) if parent is a parent of child
+    // - Some(false) if the opposite is true
+    fn gt(&self, lhs: usize, rhs: usize) -> Option<bool> {
+        if self.is_child(rhs, lhs) {
+            return Some(true);
+        }
+        if self.is_child(lhs, rhs) {
+            return Some(false);
+        }
+        None
+    }
+    // Check that lhs <= rhs in the order
+    // Since we have a partial order.
+    // This function returns
+    // - None when no order exists.
+    // - Some(true) if parent is a parent of child
+    // - Some(false) if the opposite is true
+    fn is_child(&self, child: usize, parent: usize) -> bool {
+        if self.parent[child] == Some(parent) {
+            return true;
+        }
+
+        for child_of_parent in self.childs(parent) {
+            if self.is_child(child, child_of_parent) {
+                return true;
+            }
+        }
+        false
+    }
+    // Add the relation bigger >= smaller
+    fn add_relation(&mut self, bigger: usize, smaller: usize) {
+        while self.parent.len() <= bigger || self.parent.len() <= smaller {
+            self.parent.push(None);
+        }
+        match self.gt(bigger, smaller) {
+            None => self.parent[smaller] = Some(bigger),
+            Some(v) => {
+                if v {
+                    self.incoherent = true;
+                }
+            }
+        }
+    }
+
+    fn draw_tree_from(
+        &self,
+        buf: &mut Buffer,
+        from: usize,
+        pos: &mut Position,
+        is_left: bool,
+        pref: String,
+    ) {
+        /*
+        ┌─────┐
+        │ int │
+        ├─────┤
+        │ 2   │
+        └─────┘
+        */
+        let txt = if is_left {
+            format!("{}├─{from}", &pref)
+        } else {
+            format!("{}└─{from}", &pref)
+        };
+        Text::from(txt.clone())
+            .render(Rect::new(pos.x, pos.y, txt.len() as u16, 1), buf);
+
+        pos.y += 1;
+
+        let childs = self.childs(from);
+        for i in 0..childs.len() {
+            let child = childs[i];
+            let pref = pref.clone()
+                + if is_left { "│ " } else { "  " }
+                + if format!("{from}").len() >= 2 {
+                    " "
+                } else {
+                    ""
+                };
+            self.draw_tree_from(buf, child, pos, i != childs.len() - 1, pref);
+        }
+    }
+
+    fn number_child_from(&self, from: usize) -> usize {
+        let mut res = 1;
+        for child in self.childs(from) {
+            res += self.number_child_from(child);
+        }
+        return res;
+    }
+
+    fn is_root(&self, child: usize) -> bool {
+        return self.parent[child] == None;
+    }
+
+    fn two_childs_same_parent(&self) -> Option<(usize, usize)> {
+        for i in 1..self.parent.len() {
+            let childs = self.childs(i);
+            if childs.len() >= 2 {
+                return Some((childs[0], childs[1]));
+            }
+        }
+        None
+    }
+
+    fn two_root_min_child(&self) -> Option<(usize, usize)> {
+        let mut first = None;
+        let mut min = NB_LECONS + 10;
+        for i in 1..self.parent.len() {
+            if !self.is_root(i) {
+                continue;
+            }
+            let nb_child = self.number_child_from(i);
+            if nb_child < min {
+                min = nb_child;
+                first = Some(i);
+            }
+        }
+        match first {
+            None => return None,
+            Some(first) => {
+                min = NB_LECONS + 10;
+                let mut second = None;
+                for i in 1..self.parent.len() {
+                    if !self.is_root(i) || i == first {
+                        continue;
+                    }
+                    let nb_child = self.number_child_from(i);
+                    if nb_child < min {
+                        min = nb_child;
+                        second = Some(i);
+                        // todo!();
+                    }
+                }
+                match second {
+                    None => return None,
+                    Some(second) => return Some((first, second)),
+                }
+            }
+        }
+    }
+}
+
+impl Ui for Order {
+    fn ui(
+        &mut self,
+        area: Rect,
+        buf: &mut Buffer,
+        _events: &[Event],
+        _mouse: Position,
+    ) -> Response {
+        let mut pos = Position::new(area.left(), area.top());
+        for i in 1..self.parent.len() {
+            if self.parent[i] == None {
+                self.draw_tree_from(buf, i, &mut pos, false, "".into());
+            }
+        }
+
+        // self.childs
+
+        Response::NONE
+    }
+}
+
+const NB_LECONS: usize = 33;
+const LECONS_STR: &str = include_str!("../../assets/lecons_agreg.txt");
+// const LECONS: LazyCell<Vec<&str>> = LazyCell::new(|| {
+//     println!("initializing");
+//     92
+// });
+
+#[derive(Debug)]
 pub struct Couplage {
     lecons: Vec<&'static str>,
     lecons_choosen: Vec<usize>,
 
     left: usize,
     right: usize,
+
+    bar_width: u16,
+
+    order: Order,
+    ordering_finished: bool,
+}
+
+impl Default for Couplage {
+    fn default() -> Self {
+        Self {
+            lecons: vec![],
+            lecons_choosen: vec![],
+
+            left: 0,
+            right: 0,
+
+            bar_width: 3,
+
+            order: Order::new(),
+            ordering_finished: false,
+        }
+    }
 }
 
 impl Couplage {
     fn next_left(&mut self) {
         self.lecons_choosen[self.left] += 1;
-        self.choose_lecons();
+        self.choose_lecons_smart();
     }
     fn next_right(&mut self) {
         self.lecons_choosen[self.right] += 1;
-        self.choose_lecons();
+        self.choose_lecons_smart();
     }
 
-    fn choose_lecons(&mut self) {
+    fn choose_lecons_smart(&mut self) {
+        let two_to_merge = self.order.two_childs_same_parent();
+        if let Some((first, second)) = two_to_merge {
+            self.left = first;
+            self.right = second;
+            return;
+        }
+        let roots = self.order.two_root_min_child();
+        if let Some((first, second)) = roots {
+            self.left = first;
+            self.right = second;
+            return;
+        }
+
+        self.ordering_finished = true;
+    }
+
+    fn choose_random_lecons(&mut self) {
         self.left = random_range(0..self.lecons.len());
         self.right = random_range(0..self.lecons.len());
         while self.right == self.left {
@@ -55,17 +300,24 @@ impl Ui for Couplage {
         mouse: Position,
     ) -> Response {
         if self.lecons.is_empty() {
-            for lecon in parse_lecons(LECONS) {
+            self.lecons.push("");
+            self.lecons_choosen.push(0);
+            for lecon in parse_lecons(LECONS_STR) {
                 self.lecons.push(lecon);
                 self.lecons_choosen.push(0);
             }
-            self.choose_lecons();
+            self.choose_lecons_smart();
         }
         if should_stop(events) {
             return Response::STOPPED;
         }
         if Zone::default()
-            .min_area(Rect::new(0, 0, 40, 40))
+            .min_area(Rect::new(
+                0,
+                0,
+                self.lecons.len() as u16 * (self.bar_width + 1) - 1,
+                10,
+            ))
             .ui(area, buf, events, mouse)
             .stopped()
         {
@@ -77,11 +329,17 @@ impl Ui for Couplage {
                 Event::Key(KeyEvent {
                     code: KeyCode::Right,
                     ..
-                }) => self.next_right(),
+                }) => {
+                    self.order.add_relation(self.right, self.left);
+                    self.next_right()
+                }
                 Event::Key(KeyEvent {
                     code: KeyCode::Left,
                     ..
-                }) => self.next_left(),
+                }) => {
+                    self.order.add_relation(self.left, self.right);
+                    self.next_left();
+                }
                 _ => {}
             }
         }
@@ -90,14 +348,15 @@ impl Ui for Couplage {
             .direction(Direction::Vertical)
             .constraints([
                 Constraint::Length(1),
+                Constraint::Fill(1),
+                Constraint::Length(NB_LECONS as u16),
                 Constraint::Fill(2),
-                Constraint::Fill(8),
             ])
             .split(area);
         let horizon = Layout::default()
             .direction(Direction::Horizontal)
             .constraints([
-                Constraint::Fill(1),
+                Constraint::Length(4),
                 Constraint::Fill(5),
                 Constraint::Fill(1),
                 Constraint::Fill(5),
@@ -118,36 +377,61 @@ impl Ui for Couplage {
 
         if Zone::default()
             .bordered()
-            .text(self.lecons[self.left])
-            .ui(left_area, buf, events, mouse)
-            .clicked()
-        {
-            self.next_left();
-        };
-        if Zone::default()
-            .bordered()
             .text(self.lecons[self.right])
             .ui(right_area, buf, events, mouse)
             .clicked()
         {
+            self.order.add_relation(self.right, self.left);
             self.next_right();
         };
+        if Zone::default()
+            .bordered()
+            .text(self.lecons[self.left])
+            .ui(left_area, buf, events, mouse)
+            .clicked()
+        {
+            self.order.add_relation(self.left, self.right);
+            self.next_left();
+        };
 
-        let mut bar_vec = vec![];
+        self.order.ui(vert[2], buf, events, mouse);
 
-        for (i, value) in self.lecons_choosen.iter().enumerate() {
-            bar_vec.push(Bar::with_label(format!("{}", i + 1), *value as u64));
+        // BarChart Only if the Ordering is finished
+        if !self.ordering_finished {
+            return Response::NONE;
         }
 
-        BarChart::new(bar_vec).bar_width(3).render(
+        let mut vec_lecons_val: [usize; NB_LECONS + 1] = [0; NB_LECONS + 1];
+
+        let mut vec_lecons = vec![];
+
+        for i in 1..self.order.parent.len() {
+            for j in 1..self.order.parent.len() {
+                match self.order.gt(i, j) {
+                    None => {}
+                    Some(true) => vec_lecons_val[i] += 1,
+                    Some(false) => vec_lecons_val[j] += 1,
+                }
+            }
+        }
+        for i in 0..self.order.parent.len() {
+            vec_lecons.push(Bar::with_label(
+                format!("{}", i),
+                vec_lecons_val[i] as u64,
+            ));
+        }
+
+        BarChart::new(vec_lecons).bar_width(self.bar_width).render(
             Layout::default()
                 .direction(Direction::Horizontal)
                 .constraints([
                     Constraint::Fill(1),
-                    Constraint::Length(self.lecons.len() as u16 * 4),
+                    Constraint::Length(
+                        self.lecons.len() as u16 * (self.bar_width + 1) - 1,
+                    ),
                     Constraint::Fill(1),
                 ])
-                .split(vert[2])[1],
+                .split(vert[3])[1],
             buf,
         );
 

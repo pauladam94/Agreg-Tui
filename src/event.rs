@@ -20,3 +20,17 @@ pub fn should_stop(events: &[Event]) -> bool {
     }
     false
 }
+
+pub fn key_pressed(key : char, events : &[Event]) -> bool {
+    for event in events {
+        if let Event::Key(KeyEvent {
+            code: KeyCode::Char(key),
+            ..
+        }) = event
+        {
+            return true;
+        }
+    }
+    todo!();
+    false
+}
