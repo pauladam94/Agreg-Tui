@@ -1,9 +1,9 @@
 use crossterm::event::{Event, KeyCode, KeyEvent};
 use ratatui::layout::{Constraint, Direction, Layout};
 use ratatui::prelude::{Buffer, Position, Rect};
-use ratatui::text::Text;
-use ratatui::widgets::Widget;
-use ratatui::widgets::{Bar, BarChart};
+use ratatui::text::{Line, Text};
+use ratatui::widgets::Bar;
+use ratatui::widgets::{Paragraph, Widget};
 
 use crate::event::should_stop;
 use crate::ui::{Response, Ui};
@@ -212,14 +212,12 @@ impl Ui for Order {
 
 const NB_LECONS: usize = 33;
 const LECONS_STR: &str = include_str!("../../assets/lecons_agreg.txt");
-// const LECONS: LazyCell<Vec<&str>> = LazyCell::new(|| {
-//     println!("initializing");
-//     92
-// });
+const LECONS_SHORT_STR : &str = include_str!("../../assets/lecons-short.txt");
 
 #[derive(Debug)]
 pub struct Couplage {
     lecons: Vec<&'static str>,
+    lecons_short: Vec<&'static str>,
     lecons_choosen: Vec<usize>,
 
     left: usize,
@@ -229,12 +227,15 @@ pub struct Couplage {
 
     order: Order,
     ordering_finished: bool,
+
+    stats: Option<[f32; NB_LECONS + 1]>,
 }
 
 impl Default for Couplage {
     fn default() -> Self {
         Self {
             lecons: vec![],
+            lecons_short: vec![],
             lecons_choosen: vec![],
 
             left: 0,
@@ -244,6 +245,8 @@ impl Default for Couplage {
 
             order: Order::new(),
             ordering_finished: false,
+
+            stats: None,
         }
     }
 }
@@ -301,10 +304,14 @@ impl Ui for Couplage {
     ) -> Response {
         if self.lecons.is_empty() {
             self.lecons.push("");
+            self.lecons_short.push("");
             self.lecons_choosen.push(0);
             for lecon in parse_lecons(LECONS_STR) {
                 self.lecons.push(lecon);
                 self.lecons_choosen.push(0);
+            }
+            for lecon_short in parse_lecons(LECONS_SHORT_STR) {
+                self.lecons_short.push(lecon_short);
             }
             self.choose_lecons_smart();
         }
@@ -349,8 +356,8 @@ impl Ui for Couplage {
             .constraints([
                 Constraint::Length(1),
                 Constraint::Fill(1),
-                Constraint::Length(NB_LECONS as u16),
-                Constraint::Fill(2),
+                Constraint::Length(NB_LECONS as u16 + 2 as u16),
+                Constraint::Fill(1),
             ])
             .split(area);
         let horizon = Layout::default()
@@ -394,47 +401,73 @@ impl Ui for Couplage {
             self.next_left();
         };
 
-        self.order.ui(vert[2], buf, events, mouse);
-
-        // BarChart Only if the Ordering is finished
         if !self.ordering_finished {
+            self.order.ui(vert[2], buf, events, mouse);
             return Response::NONE;
         }
 
-        let mut vec_lecons_val: [usize; NB_LECONS + 1] = [0; NB_LECONS + 1];
+        if self.stats.is_none() {
+            let mut vec_stats: [usize; NB_LECONS + 1] = [0; NB_LECONS + 1];
 
-        let mut vec_lecons = vec![];
-
-        for i in 1..self.order.parent.len() {
-            for j in 1..self.order.parent.len() {
-                match self.order.gt(i, j) {
-                    None => {}
-                    Some(true) => vec_lecons_val[i] += 1,
-                    Some(false) => vec_lecons_val[j] += 1,
+            for i in 1..NB_LECONS + 1 {
+                for j in 1..i {
+                    match self.order.gt(i, j) {
+                        None => {
+                            todo!();
+                        }
+                        Some(true) => vec_stats[i] += 1,
+                        Some(false) => vec_stats[j] += 1,
+                    }
                 }
             }
-        }
-        for i in 0..self.order.parent.len() {
-            vec_lecons.push(Bar::with_label(
-                format!("{}", i),
-                vec_lecons_val[i] as u64,
-            ));
+
+            let mut stats: [f32; NB_LECONS + 1] = [0 as f32; NB_LECONS + 1];
+
+            for i in 1..NB_LECONS + 1 {
+                stats[i] = (vec_stats[i] as f32
+                    / (NB_LECONS * (NB_LECONS - 1)) as f32
+                    * 2.)
+                    * 100.;
+            }
+
+            self.stats = Some(stats);
         }
 
-        BarChart::new(vec_lecons).bar_width(self.bar_width).render(
-            Layout::default()
-                .direction(Direction::Horizontal)
-                .constraints([
-                    Constraint::Fill(1),
-                    Constraint::Length(
-                        self.lecons.len() as u16 * (self.bar_width + 1) - 1,
-                    ),
-                    Constraint::Fill(1),
-                ])
-                .split(vert[3])[1],
-            buf,
-        );
+        if let Some(stats) = self.stats {
+            let mut txt = vec![];
+            for i in 1..NB_LECONS + 1 {
+                txt.push(Line::from(format!(
+                    "{:<width$} : {:.2} %",
+                    self.lecons_short[i],
+                    stats[i],
+                    width =
+                        self.lecons_short.iter().map(|s| s.len()).max().unwrap_or(0)
+                )));
+            }
+            txt.push(Line::from(""));
+            let mut total_pourcentage = 0.;
+            for i in 1..NB_LECONS + 1 {
+                total_pourcentage += stats[i];
+            }
+            txt.push(Line::from(format!("{}", total_pourcentage)));
+            Paragraph::new(txt).render(vert[2], buf);
+        }
 
+        /*
+                BarChart::new(vec_lecons).bar_width(self.bar_width).render(
+                    Layout::default()
+                        .direction(Direction::Horizontal)
+                        .constraints([
+                            Constraint::Fill(1),
+                            Constraint::Length(
+                                self.lecons.len() as u16 * (self.bar_width + 1) - 1,
+                            ),
+                            Constraint::Fill(1),
+                        ])
+                        .split(vert[3])[1],
+                    buf,
+                );
+        */
         Response::NONE
     }
 }

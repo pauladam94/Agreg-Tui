@@ -254,7 +254,7 @@ III. Complexité pire cas
     - O(n**2) en pire cas
 IV. Complexité moyenne
     - démo complète (bien la faire)
-V. Exxtensions
+V. Extensions
     - choix du pivot par médian à 3
     - sur les cas de petites tailles on appelle le tri par insertion
     - appeler d'abord le sous cas le plus petit permet 
@@ -303,7 +303,6 @@ II. Algorithme de Kosaraju
       b. 
       c.
       d. Aucune arrête du graphe CFC n'est présente dans un arbre qui 
-      
 III. Kosaraju NL-Complet (Buffer)
   III.A Problème de 2 SAT
   III.B Classe NL (inclus dans P et égale à coNL)
@@ -346,7 +345,7 @@ Quel est le programme de NSI en première ?
     - Tris par insertion, par sélection
     - Algorithme des k plus proches voisins
     - Recherche dichotomique dans tableau trié
-    - Algorithmes gloutons 
+    - Algorithmes gloutons
 ---
 Quel est le programme de NSI en terminale ?
 
@@ -385,6 +384,7 @@ gdb ./binaire.x
 ---
 Comment debugger un programme Ocaml ?
 
+Utiliser utop + import le module écrit en ocaml.
 TODO
 ---
 Comment debugger un programme Python ?
@@ -416,7 +416,11 @@ gnuplot -p -e "plot 'data.txt' using 1:2 with lines title 'Algorithme Naif'"
 ---
 Comment utiliser gnuplot pour faire un fit des données par une fonction ?
 
-TODO
+f(x) = a * x + b;
+a = 1;
+b = 0;
+fit f(x) 'data.txt' using 1:2 via a, b;
+plot 'data.txt' using 1:2, f(x) using 
 ---
 Voici une fonction qui engendre un stack overflow.
 Comment la changer pour avoir moins souvent cette erreur ?
@@ -480,8 +484,7 @@ Citer tous les algorithmes du textes au programmes.
 - Knuth Morris Pratt
 .... TODO
 ---
-Décrire les différences entre l'algorithme de routage
-RIP et OSPF.
+Décrire les différences entre l'algorithme de routage RIP et OSPF.
 Dans quelle situation sont t'ils utilisés ?
 
 TODO
@@ -502,3 +505,62 @@ val pp_tree : tree -> String
 (* recursive function *)
 (* tree is_left prefixe -> resultat *)
 val pp_tree_aux : tree -> bool -> String -> String
+---
+Est ce que tous les threads ont le même pid ?
+Comment les reconnaitres de façon unique ?
+
+Oui tous les threads d'un même processus ont le même pid.
+Le thread_id identifie uniquement un thread.
+---
+Quel est la différence entre l'algorithme de Petterson et Lamport ?
+
+Petterson et Lamport implémente une section critique avec attente active.
+L'avantage de la boulangerie de Lamport c'est qu'il nécessite pas.
+---
+Comment présenter l'algorithme de Petterson et Lamport en classe ?
+
+- Petterson ne peut pas être présenté en TP. Les assignations en C ne sont pas
+  atomatiques.
+- Lamport lui va fonctionner si les instructions ne sont pas réordonnée.
+En compilant en -O0 l'algorithme pourra fonctionner.
+---
+Comment éviter en pratique qu'il n'y est pas d'interblocage ?
+
+- Une méthode classique (et correcte) et de forcer un ordre sur les verrous pris
+par chaque thread.
+- méthode de résolution interbloquable : thread préemptif (peut être arrêté)
+---
+Que fait l'algorithme LZW rapidement ?
+
+TODO
+---
+Comment implémenter un verrou avec une primitive processeur Test&Set ?
+
+TODO
+---
+Comment fonctionne un B-Abre ?
+Quelles sont les idées essentiels ?
+
+TODO
+---
+Comment donner confiance en leur code (multithreadé) à des élèves ?
+
+- faire des tests
+- lancer le débugger
+- preuve théorique de non interblocage (schémas) : introduction model checking
+- montrer le site "deadlock-empire" qui permet d'attaquer du code multithread.
+---
+Qu'est ce qu'un tri topologique ?
+
+c'est une linéarisation d'un ordre partiel pour obtenir un ordre total.
+Une manière d'en créer un est de faire un parcours en profondeur.
+---
+Quel est l'algorithme utilisé pour résoudre ?
+
+ce n'est pas un parcours en profondeur mais
+il crée bien un tri topologique.
+Le nom de l'algorithme est "C3".
+---
+Comment voir la chaine d'héritage en python d'une classe
+
+mro(nom_de_la_classe)

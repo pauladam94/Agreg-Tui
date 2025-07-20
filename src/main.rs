@@ -10,7 +10,7 @@ use std::time::Duration;
 use std::time::Instant;
 
 fn main() -> io::Result<()> {
-    let frame_rate = 60;
+    let frame_rate = 30;
     let mut terminal = ratatui::init();
     std::io::stdout().execute(crossterm::event::EnableMouseCapture)?;
 
