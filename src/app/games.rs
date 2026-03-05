@@ -2,7 +2,6 @@ pub mod snake;
 
 use self::buttons_list::ButtonsList;
 use self::snake::Snake;
-use self::symbols::merge::MergeStyle;
 use self::zone::Zone;
 use crate::event::should_stop;
 use crate::ui::{Response, Ui};
@@ -21,11 +20,12 @@ pub enum GameState {
     Test,
 }
 
+
 #[derive(Default, Debug)]
 pub struct Games {
     state: GameState,
 
-    merge_style: Option<MergeStyle>,
+    // merge_style: Option<MergeStyle>,
     border_type: BorderType,
 
     snake: Vec<Snake>,
@@ -38,7 +38,7 @@ impl Games {
 
             snake: vec![Snake::new(), Snake::new(), Snake::new(), Snake::new()],
 
-            merge_style: None,
+            // merge_style: None,
             border_type: BorderType::Plain,
         }
     }
@@ -91,38 +91,38 @@ impl Ui for Games {
                 }
 
                 for event in events {
-                    match event {
-                        Event::Key(KeyEvent {
-                            code: KeyCode::Char('a'),
-                            ..
-                        }) => {
-                            self.merge_style = None;
-                        }
-                        Event::Key(KeyEvent {
-                            code: KeyCode::Char('z'),
-                            ..
-                        }) => self.merge_style = Some(MergeStyle::Exact),
-                        Event::Key(KeyEvent {
-                            code: KeyCode::Char('e'),
-                            ..
-                        }) => self.merge_style = Some(MergeStyle::BestFit),
-                        Event::Key(KeyEvent {
-                            code: KeyCode::Char('r'),
-                            ..
-                        }) => self.border_type = BorderType::Plain,
-                        Event::Key(KeyEvent {
-                            code: KeyCode::Char('t'),
-                            ..
-                        }) => self.border_type = BorderType::Thick,
-                        Event::Key(KeyEvent {
-                            code: KeyCode::Char('y'),
-                            ..
-                        }) => self.border_type = BorderType::Double,
-                        _ => {}
-                    }
+                    // match event {
+                    //     Event::Key(KeyEvent {
+                    //         code: KeyCode::Char('a'),
+                    //         ..
+                    //     }) => {
+                    //         self.merge_style = None;
+                    //     }
+                    //     Event::Key(KeyEvent {
+                    //         code: KeyCode::Char('z'),
+                    //         ..
+                    //     }) => self.merge_style = Some(MergeStyle::Exact),
+                    //     Event::Key(KeyEvent {
+                    //         code: KeyCode::Char('e'),
+                    //         ..
+                    //     }) => self.merge_style = Some(MergeStyle::BestFit),
+                    //     Event::Key(KeyEvent {
+                    //         code: KeyCode::Char('r'),
+                    //         ..
+                    //     }) => self.border_type = BorderType::Plain,
+                    //     Event::Key(KeyEvent {
+                    //         code: KeyCode::Char('t'),
+                    //         ..
+                    //     }) => self.border_type = BorderType::Thick,
+                    //     Event::Key(KeyEvent {
+                    //         code: KeyCode::Char('y'),
+                    //         ..
+                    //     }) => self.border_type = BorderType::Double,
+                    //     _ => {}
+                    // }
                 }
 
-                Zone::new().bordered().merge_style(self.merge_style.clone()).ui(
+                Zone::new().bordered().ui(
                     Rect::new(4, 4, 4, 4).offset(Offset::new(
                         area.left() as i32,
                         area.top() as i32,
@@ -133,7 +133,7 @@ impl Ui for Games {
                 );
                 Zone::new()
                     .bordered()
-                    .merge_style(self.merge_style.clone())
+                    // .merge_style(self.merge_style.clone())
                     .border_type(BorderType::Thick)
                     .ui(
                         Rect::new(6, 6, 4, 4).offset(Offset::new(
@@ -146,7 +146,7 @@ impl Ui for Games {
                     );
                 Zone::new()
                     .bordered()
-                    .merge_style(self.merge_style.clone())
+                    // .merge_style(self.merge_style.clone())
                     .border_type(BorderType::Rounded)
                     .ui(
                         Rect::new(10, 10, 5, 5).offset(Offset::new(
@@ -159,7 +159,7 @@ impl Ui for Games {
                     );
                 Zone::new()
                     .bordered()
-                    .merge_style(self.merge_style.clone())
+                    // .merge_style(self.merge_style.clone())
                     .border_type(BorderType::Double)
                     .ui(
                         Rect::new(14, 14, 10, 10).offset(Offset::new(
@@ -172,7 +172,7 @@ impl Ui for Games {
                     );
                 Zone::new()
                     .bordered()
-                    .merge_style(self.merge_style.clone())
+                    // .merge_style(self.merge_style.clone())
                     .border_type(self.border_type)
                     .mouse_followed()
                     .ui(Rect::new(0, 0, 3, 3), buf, events, mouse);

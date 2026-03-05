@@ -9,8 +9,9 @@ edition = "2024"
 crossterm = "0.28.1"
 # ratatui = "0.29.0"
 # ratatui = {git = ""}
-ratatui = {path = "../ratatui/ratatui"}
+# ratatui = {path = "../ratatui/ratatui"}
 rand = "0.9.0"
+ratatui = "0.30.0"
 unicode-segmentation = "1.12.0"
 
 [profile.release]

@@ -6,7 +6,7 @@ use ratatui::prelude::*;
 use ratatui::widgets::*;
 use unicode_segmentation::UnicodeSegmentation;
 
-use self::symbols::merge::MergeStyle;
+// use self::symbols::merge::MergeStyle;
 
 #[derive(Default)]
 pub struct Zone<'a> {
@@ -25,8 +25,7 @@ pub struct Zone<'a> {
     mouse_follow: bool,
 
     bg: Option<Color>,
-
-    merge_style: Option<MergeStyle>,
+    // merge_style: Option<MergeStyle>,
 }
 
 fn text_width(s: &str) -> usize {
@@ -76,10 +75,10 @@ impl<'a> Zone<'a> {
         self.bordered = true;
         self
     }
-    pub fn merge_style(mut self, merge_style: Option<MergeStyle>) -> Self {
-        self.merge_style = merge_style;
-        self
-    }
+    // pub fn merge_style(mut self, merge_style: Option<MergeStyle>) -> Self {
+    //     self.merge_style = merge_style;
+    //     self
+    // }
     pub fn mouse_followed(mut self) -> Self {
         self.mouse_follow = true;
         self
@@ -184,7 +183,7 @@ impl Ui for Zone<'_> {
             .wrap(Wrap { trim: true })
             .block(
                 block
-                    .merge_style(self.merge_style.clone())
+                    // .merge_style(self.merge_style.clone())
                     .border_style(if rep.clicked() {
                         Style::new().green()
                     } else if rep.hovered() {
